@@ -20,10 +20,10 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
-          is_sugar_free: boolean | null
+          is_active: boolean
           name: string
           price: number
-          stock: number
+          stock_quantity: number
           updated_at: string
         }
         Insert: {
@@ -31,10 +31,10 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
-          is_sugar_free?: boolean | null
+          is_active?: boolean
           name: string
           price?: number
-          stock?: number
+          stock_quantity?: number
           updated_at?: string
         }
         Update: {
@@ -42,13 +42,92 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
-          is_sugar_free?: boolean | null
+          is_active?: boolean
           name?: string
           price?: number
-          stock?: number
+          stock_quantity?: number
           updated_at?: string
         }
         Relationships: []
+      }
+      sales: {
+        Row: {
+          created_at: string
+          customer_phone: string | null
+          id: string
+          product_id: string
+          quantity: number
+          reservation_token: string | null
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          customer_phone?: string | null
+          id?: string
+          product_id: string
+          quantity: number
+          reservation_token?: string | null
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          customer_phone?: string | null
+          id?: string
+          product_id?: string
+          quantity?: number
+          reservation_token?: string | null
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_reservations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          is_completed: boolean
+          product_id: string
+          quantity: number
+          reservation_token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_completed?: boolean
+          product_id: string
+          quantity: number
+          reservation_token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_completed?: boolean
+          product_id?: string
+          quantity?: number
+          reservation_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_reservations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

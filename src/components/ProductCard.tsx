@@ -1,90 +1,70 @@
-import { useState } from "react";
-import { Minus, Plus, ShoppingCart, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Product } from "@/types/product";
-import { toast } from "sonner";
-import { getProductImage } from "@/lib/productImages";
+import { useState } from 'react';
+import { Plus, Minus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Product } from '@/lib/mockData';
+
+const REGIONAL_PRICE = 13.0;
 
 interface ProductCardProps {
   product: Product;
+  onAddToCart: (product: Product, quantity: number) => void;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(1);
-  const maxQuantity = product.stock;
+  const isOutOfStock = product.stock_quantity <= 0;
 
-  const handleIncrease = () => {
-    if (quantity < maxQuantity) {
-      setQuantity(quantity + 1);
+  const handleIncrement = () => {
+    if (quantity < product.stock_quantity) {
+      setQuantity((prev) => prev + 1);
     }
   };
 
-  const handleDecrease = () => {
+  const handleDecrement = () => {
     if (quantity > 1) {
-      setQuantity(quantity - 1);
+      setQuantity((prev) => prev - 1);
     }
   };
 
-  const handleBuy = () => {
-    if (product.stock === 0) {
-      toast.error("Produto esgotado!");
-      return;
+  const handleAddToCart = () => {
+    if (!isOutOfStock) {
+      onAddToCart(product, quantity);
+      setQuantity(1);
     }
-
-    const total = (product.price * quantity).toFixed(2).replace(".", ",");
-    const message = encodeURIComponent(
-      `Olá! Gostaria de comprar:\n\n` +
-        `📦 Produto: ${product.name}\n` +
-        `🔢 Quantidade: ${quantity} unidade(s)\n` +
-        `💰 Valor unitário: R$ ${product.price.toFixed(2).replace(".", ",")}\n` +
-        `💵 Total: R$ ${total}\n\n` +
-        `Por favor, confirme a disponibilidade!`
-    );
-
-    // Replace with your WhatsApp number
-    const whatsappNumber = "5511999999999";
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-
-    window.open(whatsappUrl, "_blank");
   };
 
-  const isOutOfStock = product.stock === 0;
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    });
+  };
+
+  const savings = REGIONAL_PRICE - product.price;
+  const discountPercent = Math.round((savings / REGIONAL_PRICE) * 100);
 
   return (
-    <div className="group relative glass-card overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:neon-glow">
-      {/* Glow effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:to-transparent transition-all duration-500" />
-
-      {/* Sugar free badge */}
-      {product.is_sugar_free && (
-        <div className="absolute top-3 right-3 z-10">
-          <span className="px-2 py-1 text-xs font-display uppercase bg-primary/20 text-primary rounded-full border border-primary/30 neon-border">
-            Zero Açúcar
-          </span>
-        </div>
-      )}
-
-      {/* Image */}
-      <div className="relative h-48 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent z-10" />
-        <img
-          src={getProductImage(product.name, product.image_url)}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-20">
-            <span className="font-display text-lg text-destructive uppercase tracking-wider">
-              Esgotado
-            </span>
-          </div>
-        )}
+    <Card className="group relative bg-card border-border overflow-hidden transition-all duration-300 hover:border-primary/30 hover:box-glow">
+      {/* Discount Badge */}
+      <div className="absolute top-3 right-3 z-10">
+        <Badge className="bg-discount text-discount-foreground font-bold text-sm px-3 py-1 animate-pulse shadow-lg shadow-discount/30">
+          -{discountPercent}% OFF
+        </Badge>
       </div>
 
-      {/* Content */}
-      <div className="p-5 space-y-4">
+      <div className="aspect-square overflow-hidden bg-muted">
+        <img
+          src={product.image_url}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+
+      <CardContent className="p-4 space-y-4">
         <div>
-          <h3 className="font-display text-lg font-semibold text-foreground line-clamp-1 group-hover:neon-text transition-all duration-300">
+          <h3 className="font-semibold text-foreground text-lg leading-tight">
             {product.name}
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -92,60 +72,72 @@ export function ProductCard({ product }: ProductCardProps) {
           </p>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-2xl font-display font-bold neon-text">
-              R$ {product.price.toFixed(2).replace(".", ",")}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {product.stock} em estoque
-            </p>
+        {/* Price Display with Discount */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground line-through">
+              {formatPrice(REGIONAL_PRICE)}
+            </span>
+            <span className="text-2xl font-bold text-primary text-glow">
+              {formatPrice(product.price)}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="border-primary/50 text-primary bg-primary/10 font-medium">
+              Economize {formatPrice(savings)}
+            </Badge>
           </div>
         </div>
 
-        {/* Quantity selector */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            {isOutOfStock ? 'Esgotado' : `${product.stock_quantity} em estoque`}
+          </span>
+        </div>
+
         {!isOutOfStock && (
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-secondary rounded-lg p-1">
-              <button
-                type="button"
-                className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleDecrease}
+            <div className="flex items-center border border-border rounded-lg">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-r-none"
+                onClick={handleDecrement}
                 disabled={quantity <= 1}
               >
                 <Minus className="h-4 w-4" />
-              </button>
-              <span className="w-8 text-center font-display font-semibold">
+              </Button>
+              <span className="w-10 text-center text-sm font-medium">
                 {quantity}
               </span>
-              <button
-                type="button"
-                className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleIncrease}
-                disabled={quantity >= maxQuantity}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-l-none"
+                onClick={handleIncrement}
+                disabled={quantity >= product.stock_quantity}
               >
                 <Plus className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
 
             <Button
-              variant="neon"
-              className="flex-1"
-              onClick={handleBuy}
+              className="flex-1 bg-transparent border border-border text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
+              onClick={handleAddToCart}
             >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Comprar
+              Adicionar
             </Button>
           </div>
         )}
 
         {isOutOfStock && (
-          <Button variant="outline" className="w-full" disabled>
-            <Zap className="h-4 w-4 mr-2" />
+          <Button disabled className="w-full">
             Indisponível
           </Button>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default ProductCard;
