@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { mockProducts, Product } from '@/lib/mockData';
 
-const USE_MOCK = false; // Set to true to use mock data
+const USE_MOCK = true; // Set to true to use mock data
 
 export const useProducts = () => {
   return useQuery({
