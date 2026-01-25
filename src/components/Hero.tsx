@@ -35,7 +35,7 @@ const Hero = () => {
 
         {/* Subheadline */}
         <p className="mx-auto mt-6 max-w-2xl text-base md:text-lg text-white/70 leading-relaxed">
-          No mercado da região é <span className="text-white font-semibold">R$ 13,00</span> Aqui
+          Na região é <span className="text-white font-semibold">R$ 13,00</span> Aqui
           dentro você paga <span className="text-green-400 font-semibold">R$ 9,50 </span>
            Conveniência + economia, sem perder a performance.
         </p>
@@ -52,10 +52,6 @@ const Hero = () => {
             <div className="text-2xl font-semibold text-green-300">R$ 9,50</div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 backdrop-blur">
-            <div className="text-xs uppercase tracking-[0.22em] text-white/60">Economia</div>
-            <div className="text-2xl font-semibold text-white">R$ 3,50</div>
-          </div>
         </div>
 
         {/* CTAs */}

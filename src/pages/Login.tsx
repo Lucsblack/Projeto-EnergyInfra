@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAuth } from "@/auth/AuthProvider";
 
 export default function Login() {
-  const { signInWithPassword, isAdmin } = useAuth();
+  const { signInWithPassword, signUp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   const from = (location.state as any)?.from?.pathname || "/admin";
 
@@ -21,16 +22,24 @@ export default function Login() {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setInfo(null);
 
-    const res = await signInWithPassword(email, password);
+    const action =
+      mode === "login"
+        ? await signInWithPassword(email, password)
+        : await signUp(email, password);
+
     setSubmitting(false);
 
-    if (res.error) return setError(res.error);
+    if (action.error) {
+      setError(action.error);
+      return;
+    }
 
-    // Se logou mas não é admin, bloqueia.
-    // (Melhorar com mensagem de "sem permissão")
-    if (!isAdmin) {
-      setError("Seu usuário não tem permissão de administrador.");
+    if (mode === "signup") {
+      // Alguns projetos exigem confirmação por e-mail antes de logar.
+      setInfo("Usuário criado! Se o Supabase exigir confirmação, verifique seu e-mail. Depois volte e faça login.");
+      setMode("login");
       return;
     }
 
@@ -39,47 +48,57 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
-      <Card className="w-full max-w-md bg-zinc-950 border-zinc-800">
-        <CardHeader>
-          <CardTitle className="text-white">Acesso Administrativo</CardTitle>
-          <CardDescription className="text-zinc-400">
-            Entre com seu e-mail autorizado para gerenciar produtos e pedidos.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm text-zinc-300">E-mail</label>
-              <Input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                placeholder="voce@empresa.com"
-                className="bg-zinc-900 border-zinc-800 text-white"
-                required
-              />
-            </div>
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-white">
+            {mode === "login" ? "Entrar no Admin" : "Criar acesso"}
+          </h1>
 
-            <div className="space-y-2">
-              <label className="text-sm text-zinc-300">Senha</label>
-              <Input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                placeholder="••••••••"
-                className="bg-zinc-900 border-zinc-800 text-white"
-                required
-              />
-            </div>
+        </div>
 
-            {error && <p className="text-sm text-red-400">{error}</p>}
+        <p className="mt-2 text-sm text-white/70">
+          {mode === "login"
+            ? "Acesse com o e-mail e senha."
+            : "Crie seu usuário para liberar o acesso agora (temporário)."}
+        </p>
 
-            <Button className="w-full" type="submit" disabled={submitting}>
-              {submitting ? "Entrando..." : "Entrar"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <div className="space-y-2">
+            <label className="text-xs text-white/70">E-mail</label>
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              placeholder="seuemail@empresa.com"
+              className="bg-black/40 border-white/10 text-white"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs text-white/70">Senha</label>
+            <Input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              placeholder="••••••••"
+              className="bg-black/40 border-white/10 text-white"
+              required
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-400">{error}</p>}
+          {info && <p className="text-sm text-green-300">{info}</p>}
+
+          <Button className="w-full" type="submit" disabled={submitting}>
+            {submitting
+              ? "Aguarde..."
+              : mode === "login"
+              ? "Entrar"
+              : "Criar usuário"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

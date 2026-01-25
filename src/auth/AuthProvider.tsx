@@ -8,13 +8,13 @@ type AuthContextType = {
   loading: boolean;
   isAdmin: boolean;
   signInWithPassword: (email: string, password: string) => Promise<{ error?: string }>;
+  signUp: (email: string, password: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 // ✅ Lista de e-mails permitidos (simples e direto)
-// Depois você pode trocar por tabela "admins" no Supabase.
 const allowedAdmins = (import.meta.env.VITE_ADMIN_EMAILS ?? "")
   .split(",")
   .map((s: string) => s.trim().toLowerCase())
@@ -50,11 +50,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return {};
   }
 
+  // ✅ Cadastro (sign up) para você conseguir criar o usuário agora
+  async function signUp(email: string, password: string) {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        // opcional: ajuda no fluxo de confirmação por e-mail, se estiver ligado no Supabase
+        emailRedirectTo: `${window.location.origin}/admin`,
+      },
+    });
+
+    if (error) return { error: error.message };
+    return {};
+  }
+
   async function signOut() {
     await supabase.auth.signOut();
   }
 
-  const value: AuthContextType = { session, user, loading, isAdmin, signInWithPassword, signOut };
+  const value: AuthContextType = {
+    session,
+    user,
+    loading,
+    isAdmin,
+    signInWithPassword,
+    signUp,
+    signOut,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
