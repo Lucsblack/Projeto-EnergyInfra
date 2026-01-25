@@ -15,7 +15,7 @@ interface CartProps {
   total: number;
 }
 
-const WHATSAPP_NUMBER = '5511999999999'; // Replace with actual number
+const WHATSAPP_NUMBER = '61994559078'; // Replace with actual number
 
 const Cart = ({
   isOpen,
@@ -37,7 +37,7 @@ const Cart = ({
   };
 
   const generateWhatsAppMessage = () => {
-    let message = '🛒 *Pedido EnergyTi*\n\n';
+    let message = '*Pedido EnergyTi*\n\n';
     
     items.forEach((item) => {
       message += `• ${item.product.name}\n`;
