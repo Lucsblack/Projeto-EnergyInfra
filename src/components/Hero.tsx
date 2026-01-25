@@ -18,8 +18,8 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 w-full max-w-5xl px-6 text-center">
         {/* Badge */}
-        <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/80 backdrop-blur">
-          <Tag className="h-4 w-4 text-green-400" />
+        <div className="mx-auto mb-0 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/80 backdrop-blur">
+          <Tag className="h-4 w-4 text-green-300" />
           <span className="uppercase tracking-[0.2em]">
             Preço exclusivo para colaboradores
           </span>
@@ -27,17 +27,17 @@ const Hero = () => {
 
         {/* Headline */}
         <h1 className="mx-auto max-w-4xl text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-white">
-          Energia na empresa.
+          Energia na empresa
           <span className="block bg-gradient-to-r from-green-300 via-green-400 to-emerald-300 bg-clip-text text-transparent">
-            Preço de colaborador.
+            Preço de colaborador
           </span>
         </h1>
 
         {/* Subheadline */}
         <p className="mx-auto mt-6 max-w-2xl text-base md:text-lg text-white/70 leading-relaxed">
-          No mercado da região é <span className="text-white font-semibold">R$ 13,00</span>. Aqui
-          dentro você paga <span className="text-green-400 font-semibold">R$ 9,50</span>.
-          Conveniência + economia, sem perder a performance.
+          No mercado da região é <span className="text-white font-semibold">R$ 13,00</span> Aqui
+          dentro você paga <span className="text-green-400 font-semibold">R$ 9,50 </span>
+           Conveniência + economia, sem perder a performance.
         </p>
 
         {/* Price highlight */}
